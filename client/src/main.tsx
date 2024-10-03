@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { createRoot } from "react-dom/client";
+import { Application } from "./componants/application";
 
 const root = createRoot(document.getElementById("root")!);
-root.render(<h1>Hello Class</h1>);
+
+root.render(<Application />);
