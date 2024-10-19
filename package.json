@@ -10,8 +10,5 @@
     "dev:server": "cd server && npm run dev",
     "prepare": "husky",
     "test": "prettier --check ."
-  },
-  "dependencies": {
-    "typescript": "^5.6.3"
   }
 }
