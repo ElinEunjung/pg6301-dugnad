@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "concurrently": "^9.0.1",
     "husky": "^9.1.6",
     "prettier": "^3.3.3"
@@ -10,5 +11,8 @@
     "dev:server": "cd server && npm run dev",
     "prepare": "husky",
     "test": "prettier --check ."
+  },
+  "dependencies": {
+    "express": "^4.21.1"
   }
 }
