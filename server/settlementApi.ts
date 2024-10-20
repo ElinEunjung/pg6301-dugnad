@@ -34,6 +34,8 @@ settlementApi.get("/api/settlements", async (req, res) => {
 });
 
 settlementApi.post("/api/settlements", async (req, res) => {
+  console.log(req.body);
+
   const newSettlement = {
     id: sampleSettlements.length,
     department: req.body.department,
