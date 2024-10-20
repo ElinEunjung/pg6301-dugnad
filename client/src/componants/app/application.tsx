@@ -1,31 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { ProgressIndicator } from "./progressIndicator";
 
 interface Settlement {
-  id: number;
   department: string;
+  id: number;
   balance: Record<string, number>;
 }
 
-const sampleSettlements: Settlement[] = [
-  { id: 0, department: "furniture", balance: { "1000kr": 3, "2000kr": 80 } },
-  { id: 1, department: "cafeteria", balance: { "100kr": 50, "50kr": 60 } },
-];
-
-function timeout(millis: number, simulateError: boolean): Promise<void> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (simulateError) {
-        reject(new Error("Something went wrong"));
-      } else {
-        resolve();
-      }
-    }, millis);
-  });
-}
-
 async function fetchSettlement(simulateError: boolean): Promise<Settlement[]> {
-  const res = await fetch("api/settlements?simulateError=" + simulateError);
+  const res = await fetch("api/settlements?simulateError=" + simulateError, {
+    method: "GET",
+    headers: {
+      "Cache-Control": "no-cache", // Prevent caching
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Server returned error ${res.status} + "" + ${res.statusText}`,
+    );
+  }
   return await res.json();
 }
 
@@ -33,6 +27,11 @@ export function Application() {
   const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
+  const [department, setDepartment] = useState<string>();
+
+  useEffect(() => {
+    loadSettlements();
+  }, []);
 
   async function loadSettlements(simulateError: boolean = false) {
     setLoading(true);
@@ -48,15 +47,39 @@ export function Application() {
     }
   }
 
-  useEffect(() => {
-    loadSettlements();
-  }, []);
+  async function handleAddSettlement(e: FormEvent) {
+    e.preventDefault();
+
+    const newSettlement: Settlement = {
+      department,
+      balance: {},
+      id: settlements.length,
+    } as Settlement;
+
+    const res = await fetch("api/settlements", {
+      method: "POST",
+      body: JSON.stringify(newSettlement),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    if (!res.ok) {
+      setError(new Error("Could not save"));
+    } else {
+      setDepartment("");
+      await loadSettlements();
+    }
+
+    setSettlements((old) => {
+      return [...old, newSettlement];
+    });
+  }
 
   return (
     <>
       <h1>Dugnadsoppgjør</h1>
       {loading && <ProgressIndicator />}
-      {error && <div>{error.toString()}</div>}
+      {error && <div>{error.stack?.toString()}</div>}
       {settlements.map((s) => (
         <div key={s.id}>{s.department}</div>
       ))}
@@ -68,6 +91,19 @@ export function Application() {
           Refresh with error
         </button>
       </div>
+
+      <form onSubmit={handleAddSettlement}>
+        <h2>Add settlement</h2>
+        <div>
+          Department:
+          <input
+            type="text"
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+          />
+        </div>
+        <button>Add department</button>
+      </form>
     </>
   );
 }
