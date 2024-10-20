@@ -1,10 +1,11 @@
 import express from "express";
 import { settlementApi } from "./settlementApi";
+import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 
-const client = new MongoClient(
-  "mongodb+srv://eunjungp615:1xrd0Ox2F6Gooofk@cluster0.7hibr.mongodb.net/",
-);
+dotenv.config();
+
+const client = new MongoClient(process.env["MONGODB_URL"]!);
 client.connect().then(async (connection) => {
   const db = connection.db("dugnad");
   const result = await db
