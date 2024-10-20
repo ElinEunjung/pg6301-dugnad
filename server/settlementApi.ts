@@ -39,6 +39,9 @@ export function settlementApi(db: Db) {
       department: req.body.department,
       balance: req.body.balance,
     };
+
+    await db.collection("settlements").insertOne(newSettlement);
+
     sampleSettlements.push(newSettlement);
     res.sendStatus(201);
   });
